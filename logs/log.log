@@ -1,7 +1,0 @@
-2024-05-16 22:17:40  [ main:0 ] - [ INFO ]  main running
-2024-05-16 22:18:02  [ main:0 ] - [ INFO ]  main running
-2024-05-16 22:18:02  [ t1:0 ] - [ INFO ]  t1 running
-2024-05-16 22:24:37  [ main:0 ] - [ INFO ]  main run
-2024-05-16 22:24:37  [ t1:0 ] - [ INFO ]  task run
-2024-05-16 22:47:47  [ t1:0 ] - [ INFO ]  future task running
-2024-05-16 22:47:48  [ main:1009 ] - [ INFO ]  202
