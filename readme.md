@@ -85,4 +85,3 @@ jstack pid
 直接数据jconsole命令即可打开，也可以远程连接查看jvm信息
 ![image1](./images/img.png)  
 ![image2](./images/img_1.png) 
-
