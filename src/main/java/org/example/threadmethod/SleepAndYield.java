@@ -4,6 +4,8 @@ package org.example.threadmethod;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 public class SleepAndYield {
 
@@ -50,5 +52,12 @@ public class SleepAndYield {
         Thread.sleep(500);
         log.info("start interrupt");
         t1.interrupt();
+    }
+
+    @Test
+    public void timeUnitSleepDemo() throws InterruptedException {
+        log.info("start");
+        TimeUnit.SECONDS.sleep(2); // 这种写法，可读性更好，比起Thread.sleep(500);
+        log.info("end");
     }
 }
