@@ -94,9 +94,8 @@ JVM由堆，栈，方法区组成。其中栈内存给线程使用，每个线�
 
 ## 线程方法
 
-### 线程方法
+### 线程方法总结
 
-#### API
 Thread 类 API：  
 
 | 方法                                          | 说明                                                               |
@@ -118,3 +117,9 @@ Thread 类 API：
 | public final native boolean isAlive()       | 线程是否存活（还没有运行完毕）                                                  |
 | public final void setDaemon(boolean on)     | 将此线程标记为守护线程或用户线程                                                 |
 
+### 方法详解  
+#### Start & Run 方法
+- run：称为线程体，包含了要执行的这个线程的内容，方法运行结束，此线程随即终止。直接调用 run 是在主线程中执行了 run，没有启动新的线程，需要顺序执行  
+- start：使用 start 是启动新的线程，此线程处于就绪（可运行）状态，通过新的线程间接执行 run 中的代码
+
+[Start And Run](./src/main/java/org/example/threadmethod/StartAndRun.java)  
