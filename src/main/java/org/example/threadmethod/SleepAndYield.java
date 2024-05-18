@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 public class SleepAndYield {
 
     @Test
-    public void sleepDemo() throws InterruptedException {
+    public void sleepStateDemo() throws InterruptedException {
         Thread t1 = new Thread("t1") {
             @Override
             public void run() {
@@ -29,5 +29,26 @@ public class SleepAndYield {
     }
 
 
+    @Test
+    public void sleepInterruptDemo() throws InterruptedException {
+        // t1 线程启动后，进去sleep。然后主线程使用interrupt方法，打断t1的垂面
+        Thread t1 = new Thread("t1") {
+            @Override
+            public void run() {
+                try {
+                    log.info("enter sleep");
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    log.info("wake up");
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+        t1.start();
 
+        // 主线程打断t1睡眠
+        Thread.sleep(500);
+        log.info("start interrupt");
+        t1.interrupt();
+    }
 }
