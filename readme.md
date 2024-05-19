@@ -158,7 +158,7 @@ while (true) {
 [Join](./src/main/java/org/example/threadmethod/JoinDemo.java)
 
 ### Interrupt 线程
-主线程打断其他线程的时候，会把打断标记标记为true。 但如果其他线程是处在阻塞状态（sleep， wait， join）的话
+主线程打断其他线程的时候，会把被打断线程的打断标记标记标记为true。 但如果被打断他线程是处在阻塞状态（sleep， wait， join）的话
 ，执行interrupt方法，会出现异常，打断标记会是false
 [Join](./src/main/java/org/example/threadmethod/InterruptDemo.java)
 
