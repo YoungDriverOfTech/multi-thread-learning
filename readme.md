@@ -172,4 +172,7 @@ while (true) {
 - Thread.interrupted： 会返回当前线程的打断状态，然后清除打断状态
 [LockSupport](./src/main/java/org/example/threadmethod/LockSupport.java)
 
-
+## 主线程&守护线程
+默认情况下，java进程需要等待所有线程执行结束以后，才会结束。  
+有一种特殊的线程叫做守护线程，当其他的所有非守护线程运行结束了，即使守护线程没有执行完，也会强制结束。  
+[Main and Demon](./src/main/java/org/example/threadmethod/MainAndDemon.java)
