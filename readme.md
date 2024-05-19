@@ -162,3 +162,7 @@ while (true) {
 ，执行interrupt方法，会出现异常，打断标记会是false
 [Join](./src/main/java/org/example/threadmethod/InterruptDemo.java)
 
+### 2阶段终止模式  
+一个线程终止另一个线程的设计模式
+![image3](./images/img_3.png)
+[2 phase termination](./src/main/java/org/example/threadmethod/TwoPhaseTermination.java)
