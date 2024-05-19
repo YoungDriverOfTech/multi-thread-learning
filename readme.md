@@ -176,3 +176,11 @@ while (true) {
 默认情况下，java进程需要等待所有线程执行结束以后，才会结束。  
 有一种特殊的线程叫做守护线程，当其他的所有非守护线程运行结束了，即使守护线程没有执行完，也会强制结束。  
 [Main and Demon](./src/main/java/org/example/threadmethod/MainAndDemon.java)
+
+
+## 线程状态
+### 5种状态（操作系统层面）
+![image2](./images/img_4.png) 
+
+### 6种状态（根据Thread.State枚举类， java层面）
+![image2](./images/img_5.png) 
