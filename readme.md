@@ -166,3 +166,8 @@ while (true) {
 一个线程终止另一个线程的设计模式
 ![image3](./images/img_3.png)
 [2 phase termination](./src/main/java/org/example/threadmethod/TwoPhaseTermination.java)
+
+### LockSupport.part & Thread.interrupted
+- LockSupport.park: 让正在执行的线程停止执行，类似sleep，但是没有时间。 同时有一个特点：当打断状态是true的时候，不会生效
+- Thread.interrupted： 会返回当前线程的打断状态，然后清除打断状态
+[LockSupport](./src/main/java/org/example/threadmethod/LockSupport.java)
