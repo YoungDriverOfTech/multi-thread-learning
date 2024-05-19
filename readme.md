@@ -146,7 +146,7 @@ Thread 类 API：
 ```diff
 while (true) {
   try {
-    Thread.sleep(2);
++   Thread.sleep(2);
   } catch (Exception ex) {
     ex.printStackTrace();
   }
@@ -156,3 +156,9 @@ while (true) {
 ### Join 等待线程执行结束
 在主线程中调用t1.join()方法，主线成会等待t1线程执行结束之后，再继续执行  
 [Join](./src/main/java/org/example/threadmethod/JoinDemo.java)
+
+### Interrupt 线程
+主线程打断其他线程的时候，会把打断标记标记为true。 但如果其他线程是处在阻塞状态（sleep， wait， join）的话
+，执行interrupt方法，会出现异常，打断标记会是false
+[Join](./src/main/java/org/example/threadmethod/InterruptDemo.java)
+
