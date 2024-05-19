@@ -183,4 +183,7 @@ while (true) {
 ![image2](./images/img_4.png) 
 
 ### 6种状态（根据Thread.State枚举类， java层面）
-![image2](./images/img_5.png) 
+![image2](./images/img_5.png)   
+[6 thread state](./src/main/java/org/example/threadmethod/SixThreadState.java)
+
+
