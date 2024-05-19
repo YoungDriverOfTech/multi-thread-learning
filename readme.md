@@ -136,3 +136,20 @@ Thread 类 API：
   - 具体的实现依赖于操作系统的任务调度器
   - 会放弃 CPU 资源，锁资源不会释放
 - [Start And Run Code](./src/main/java/org/example/threadmethod/SleepAndYield.java)
+
+### 线程优先级
+- 线程优先级会提示调度器，优先调度该线程。但这仅仅是一个提示，调度器可以忽略
+- 如果cpu比较忙，那么优先级高的的线程会获得更多的时间便，但是cpu闲时，优先级几乎没用
+
+### Sleep防止CPU使用率100%
+可以在死循环中加入sleep或者yield，让循环不要空转，可以把cpu让渡出来给其他的程序使用
+```diff
+while (true) {
+  try {
+    Thread.sleep(2);
+  } catch (Exception ex) {
+    ex.printStackTrace();
+  }
+}
+```
+
