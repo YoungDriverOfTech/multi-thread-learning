@@ -171,3 +171,5 @@ while (true) {
 - LockSupport.park: 让正在执行的线程停止执行，类似sleep，但是没有时间。 同时有一个特点：当打断状态是true的时候，不会生效
 - Thread.interrupted： 会返回当前线程的打断状态，然后清除打断状态
 [LockSupport](./src/main/java/org/example/threadmethod/LockSupport.java)
+
+
