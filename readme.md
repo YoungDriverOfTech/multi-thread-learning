@@ -153,3 +153,6 @@ while (true) {
 }
 ```
 
+### Join 等待线程执行结束
+在主线程中调用t1.join()方法，主线成会等待t1线程执行结束之后，再继续执行  
+[Join](./src/main/java/org/example/threadmethod/JoinDemo.java)
