@@ -187,3 +187,32 @@ while (true) {
 [6 thread state](./src/main/java/org/example/threadmethod/SixThreadState.java)
 
 
+# 共享模型之管程
+## Synchronized 
+加在方法上，相当于锁住了this对象
+```java
+public synchronized void demo() {
+    
+}
+
+等价于
+
+synchronized(this) {
+    
+}
+```
+
+加载静态方法上，相当于锁住了类对象
+```java
+public synchronized static void demo() {
+    
+}
+
+等价于
+
+synchronized(Test.clas) {
+    
+}
+```
+
+
