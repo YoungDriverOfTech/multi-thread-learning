@@ -279,5 +279,40 @@ LocalVariableTable:
     Start Length Slot Name Signature
     	0 	31 		0 args [Ljava/lang/String;
     	8 	23 		1 lock Ljava/lang/Object;
+```
 
+## 轻量级锁
+### 概念
+一个对象有多个线程要加锁，但加锁的时间是错开的（没有竞争），可以使用轻量级锁来优化，轻量级锁JVM自动加，语法仍然是synchronized   
+可重入锁：线程可以进入任何一个它已经拥有的锁所同步着的代码块，可重入锁最大的作用是避免死锁  
+轻量级锁在没有竞争时（锁重入时），每次重入仍然需要执行 CAS 操作，Java 6 才引入的偏向锁来优化
+锁重入实例：  
+```java
+static final Object obj = new Object();
+public static void method1() {
+    synchronized( obj ) {
+        // 同步块 A
+        method2();
+    }
+}
+public static void method2() {
+    synchronized( obj ) {
+    	// 同步块 B
+    }
+}
+```
 
+### 加锁过程  
+- 创建锁记录（Lock Record）对象，每个线程的栈帧都会包含一个锁记录的结构，存储锁定对象的 Mark Word  
+- ![image7](./images/img_11.png)
+- 让锁记录中 Object reference 指向锁住的对象，并尝试用CAS交换锁记录的地址（lock record 地址 00）和Object的markword
+- 如果 CAS 替换成功，对象头中存储了锁记录地址和状态 00（轻量级锁） ，表示由该线程给对象加锁
+- ![image7](./images/img_12.png)
+- 如果CAS交换失败，有两种情况：
+  - 如果是其它线程已经持有了该 Object 的轻量级锁，这时表明有竞争，进入锁膨胀过程
+  - 如果是线程自己执行了 synchronized 锁重入，就添加一条 Lock Record 作为重入的计数（上述代码的情况）
+  - ![image7](./images/img_13.png)
+- 如果有取值为 null 的锁记录，表示有重入，这时重置锁记录，表示重入计数减 1
+- 如果锁记录的值不为 null，这时使用 CAS 将 Mark Word 的值恢复给对象头
+  - 成功，则解锁成功
+  - 失败，说明轻量级锁进行了锁膨胀或已经升级为重量级锁，进入重量级锁解锁流程
