@@ -231,9 +231,53 @@ Markword结构
 ![image7](./images/img_8.png)
 
 ## Monitor
+### 图解monitor
 被翻译成监视器或者管程，java中的每个对象都可以管理一个monitor对象（由操作系统提供），当执行synchronized代码块（重量级锁）时候，java中对象
 的markwork会执行monitor对象  
 加锁的过程就是：
-上图中的normal ->  ptr_to_heavyweight_monitor
+上图中的normal ->  ptr_to_heavyweight_monitor  
+***ps:这里有一个细节，上述变化，java对象中的hashcode，age之类的信息会被存到monitor对象中，解锁完成的时候，会从monitor对象取出来，恢复给java对象***
 ![image7](./images/img_9.png)
 ![image7](./images/img_10.png)
+
+### 字节码解释monitor
+```java
+public static void main(String[] args) {
+    Object lock = new Object();
+    synchronized (lock) {
+        System.out.println("ok");
+    }
+}
+```
+```java
+0: 	new				#2		// new Object
+3: 	dup
+4: 	invokespecial 	#1 		// invokespecial <init>:()V，非虚方法
+7: 	astore_1 				// lock引用 -> lock
+8: 	aload_1					// lock （synchronized开始）
+9: 	dup						// 一份用来初始化，一份用来引用
+10: astore_2 				// lock引用 -> slot 2
+11: monitorenter 			// 【将 lock对象 MarkWord 置为 Monitor 指针】
+12: getstatic 		#3		// System.out
+15: ldc 			#4		// "ok"
+17: invokevirtual 	#5 		// invokevirtual println:(Ljava/lang/String;)V
+20: aload_2 				// slot 2(lock引用)
+21: monitorexit 			// 【将 lock对象 MarkWord 重置, 唤醒 EntryList】
+22: goto 30
+25: astore_3 				// any -> slot 3
+26: aload_2 				// slot 2(lock引用)
+27: monitorexit 			// 【将 lock对象 MarkWord 重置, 唤醒 EntryList】
+28: aload_3
+29: athrow
+30: return
+Exception table:
+    from to target type
+      12 22 25 		any     // 同步代码块中，如果出现了异常，那就到25行的指令
+      25 28 25 		any     // 调用monitorexit恢复锁对象，抛出异常
+LineNumberTable: ...
+LocalVariableTable:
+    Start Length Slot Name Signature
+    	0 	31 		0 args [Ljava/lang/String;
+    	8 	23 		1 lock Ljava/lang/Object;
+
+
