@@ -215,4 +215,25 @@ synchronized(Test.clas) {
 }
 ```
 
+# Monitor 概念
+## Java 对象头
+以32位虚拟机为例子  
 
+普通对象  
+一个int 4个字节，一个Integer=对象头+value = 12个字节。KlassWord是一个指针，指向了这个对象的类型。
+一个对象是什么类型就是靠对象头的klass word来表示的
+![image6](./images/img_6.png)
+
+数组对象
+![image7](./images/img_7.png)
+
+Markword结构
+![image7](./images/img_8.png)
+
+## Monitor
+被翻译成监视器或者管程，java中的每个对象都可以管理一个monitor对象（由操作系统提供），当执行synchronized代码块（重量级锁）时候，java中对象
+的markwork会执行monitor对象  
+加锁的过程就是：
+上图中的normal ->  ptr_to_heavyweight_monitor
+![image7](./images/img_9.png)
+![image7](./images/img_10.png)
