@@ -236,9 +236,19 @@ Markword结构
 的markwork会执行monitor对象  
 加锁的过程就是：
 上图中的normal ->  ptr_to_heavyweight_monitor  
-***ps:这里有一个细节，上述变化，java对象中的hashcode，age之类的信息会被存到monitor对象中，解锁完成的时候，会从monitor对象取出来，恢复给java对象***
+***ps:这里有一个细节，上述变化，java对象中的hashcode，age之类的信息会存入线程栈中的锁记录***
 ![image7](./images/img_9.png)
 ![image7](./images/img_10.png)
+
+### 解锁
+- 在 Thread-2 上锁的过程，Thread-3、Thread-4、Thread-5 也执行 synchronized(obj)，就会进入 EntryList BLOCKED（双向链表）
+- Thread-2 执行完同步代码块的内容，根据obj对象头中 Monitor 地址寻找，设置 Owner 为空，把线程栈的锁记录中的对象头的值设置回 MarkWord
+- 唤醒 EntryList 中等待的线程来竞争锁，竞争是非公平的，如果这时有新的线程想要获取锁，可能直接就抢占到了，阻塞队列的线程就会继续阻塞
+- WaitSet 中的 Thread-0，是以前获得过锁，但条件不满足进入 WAITING 状态的线程（wait-notify 机制）
+
+注意：
+- synchronized 必须是进入同一个对象的 Monitor 才有上述的效果
+- 不加 synchronized 的对象不会关联监视器，不遵从以上规则
 
 ### 字节码解释monitor
 ```java
@@ -312,7 +322,21 @@ public static void method2() {
   - 如果是其它线程已经持有了该 Object 的轻量级锁，这时表明有竞争，进入锁膨胀过程
   - 如果是线程自己执行了 synchronized 锁重入，就添加一条 Lock Record 作为重入的计数（上述代码的情况）
   - ![image7](./images/img_13.png)
-- 如果有取值为 null 的锁记录，表示有重入，这时重置锁记录，表示重入计数减 1
-- 如果锁记录的值不为 null，这时使用 CAS 将 Mark Word 的值恢复给对象头
-  - 成功，则解锁成功
-  - 失败，说明轻量级锁进行了锁膨胀或已经升级为重量级锁，进入重量级锁解锁流程
+- 当退出 synchronized 代码块（解锁时）
+  - 如果有取值为 null 的锁记录，表示有重入，这时重置锁记录，表示重入计数减 1
+  - 如果锁记录的值不为 null，这时使用 CAS 将 Mark Word 的值恢复给对象头
+    - 成功，则解锁成功
+    - 失败，说明轻量级锁进行了锁膨胀或已经升级为重量级锁，进入重量级锁解锁流程
+
+## 锁膨胀
+### 概念
+在尝试加轻量级锁的过程中，CAS 操作无法成功，可能是其它线程为此对象加上了轻量级锁（有竞争），这时需要进行锁膨胀，将轻量级锁变为重量级锁  
+
+### 锁膨胀过程
+- 当 Thread-1 进行轻量级加锁时，Thread-0 已经对该对象加了轻量级锁
+- ![image7](./images/img_14.png)
+- Thread-1 加轻量级锁失败，进入锁膨胀流程：为 Object 对象申请 Monitor 锁，通过 Object 对象头获取到持锁线程，将 Monitor 的 Owner 置为 Thread-0，将 Object 的对象头指向重量级锁地址，然后自己进入 Monitor 的 EntryList BLOCKED
+- ![image7](./images/img_15.png)
+- ![img.png](img.png)
+- 当 Thread-0 退出同步块解锁时，使用 CAS 将 Mark Word 的值恢复给对象头失败，这时进入重量级解锁流程，即按照 Monitor 地址找到 Monitor 对象，
+- 把线程栈的锁记录中的对象头的值设置回 MarkWord，设置 Owner 为 null，唤醒 EntryList 中 BLOCKED 线程
