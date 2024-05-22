@@ -354,3 +354,38 @@ public static void method2() {
 - 自旋会占用cpu时间，单核cpu自旋是浪费时间，多核cpu才能发挥优势
 - java7之后不能手动控制是否开启自旋
 
+## 偏向锁
+### 概念
+轻量级锁在没有竞争时，每次冲入仍然需要执行CAS操作。  
+java6中引入了偏向锁做进一步的优化：只有第一次使用CAS的时候，会把线程ID设置到对象头的markword上，之后锁重入的时候，发现这个线程ID是自己，就不会执行  
+CAS操作，以后只要不发生竞争，这个对象就专属于该线程。  
+
+```java
+public class Demo{
+    static final Object obj = new Object();
+    
+    public void demo1() {
+        synchronized (obj) {
+          // sync block 1
+          demo2();
+        }
+    }
+
+    public void demo2() {
+        synchronized (obj) {
+            // sync block 2
+            demo3();
+        }
+    }
+
+    public void demo3() {
+        synchronized (obj) {
+            // sync block 3
+        }
+    }
+}
+```
+- ![img_1.png](./images/img_18.png)
+- ![img_1.png](./images/img_19.png)
+
+
