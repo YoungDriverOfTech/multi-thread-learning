@@ -236,7 +236,7 @@ Markword结构
 的markwork会执行monitor对象  
 加锁的过程就是：
 上图中的normal ->  ptr_to_heavyweight_monitor  
-***ps:这里有一个细节，上述变化，java对象中的hashcode，age之类的信息会存入线程栈中的锁记录***
+***ps:这里有一个细节，上述变化，java对象中的hashcode，age之类的信息会存入Monitor对象中***
 ![image7](./images/img_9.png)
 ![image7](./images/img_10.png)
 
@@ -388,4 +388,16 @@ public class Demo{
 - ![img_1.png](./images/img_18.png)
 - ![img_1.png](./images/img_19.png)
 
+### 偏向状态  
+对象头格式  
+![img_1.png](./images/img_20.png)
+
+一个对象创建时候：
+- 如果开启了偏向锁（默认开启），那么对象创建后，markword的值是0x05，即最后3位是101，这是thread，epoch，age都是0
+- 偏向锁默认是延迟的，不会在线程启动时立即生效，如果要避免延迟，可以追加JVM参数 -XX:BiasedLockingStartupDelay=0来禁用延迟
+- 如果没有开启偏向锁，那么对象的最后3位是001（normal），hashcode，age都是0，hashcode第一次被用到的时候才赋值
+- -XX:-UseBiasedLocking 禁用偏向锁
+- 优先级划分：有偏向锁优先偏向锁 -> 有线程使用锁对象，则撤销偏向锁，变为轻量级锁（错开的时间段使用这个锁对象） -> 有线程竞争锁对象，锁膨胀为重量级锁
+- 调用可偏向对象的hashcode的方法，会撤销可偏小状态，转变为普通状态，因为hash code在可偏向状态下，不够存储。而轻量级锁的hashcode，age会存入线程栈桢的锁记录，重量级锁会存入monitor对象中
+- ![img_1.png](./images/img_21.png)
 
