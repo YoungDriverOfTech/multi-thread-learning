@@ -337,6 +337,20 @@ public static void method2() {
 - ![image7](./images/img_14.png)
 - Thread-1 加轻量级锁失败，进入锁膨胀流程：为 Object 对象申请 Monitor 锁，通过 Object 对象头获取到持锁线程，将 Monitor 的 Owner 置为 Thread-0，将 Object 的对象头指向重量级锁地址，然后自己进入 Monitor 的 EntryList BLOCKED
 - ![image7](./images/img_15.png)
-- ![img.png](img.png)
 - 当 Thread-0 退出同步块解锁时，使用 CAS 将 Mark Word 的值恢复给对象头失败，这时进入重量级解锁流程，即按照 Monitor 地址找到 Monitor 对象，
 - 把线程栈的锁记录中的对象头的值设置回 MarkWord，设置 Owner 为 null，唤醒 EntryList 中 BLOCKED 线程
+
+
+## 自旋优化
+### 自旋锁
+重量级锁竞争的时候，可以采取自旋来优化，如果当前线程自旋成功（即吃锁线程退出了同步代码块），当前线程可以避免阻塞
+
+- 自旋成功的例子
+- ![img_1.png](./images/img_16.png)
+- 自旋失败的例子
+- ![img_1.png](./images/img_17.png)
+
+- java6之后，自旋锁是自适应的。加入刚刚自旋成功过，那么会认为自旋成功率会提高，就会多自旋几次；反之不自旋
+- 自旋会占用cpu时间，单核cpu自旋是浪费时间，多核cpu才能发挥优势
+- java7之后不能手动控制是否开启自旋
+
