@@ -454,3 +454,8 @@ class Demo {
 ### 图解
 ![img_1.png](./images/img_22.png)
 
+## API介绍
+- obj.wait(): 让获取到obj锁的线程到WaitSet中等待，并且释放obj锁
+- obj.notify(): 获取到obj锁的线程，找到monitor对象，在找到waitset，调里面一个线程进行唤醒
+- obj.notifyAll(): 获取到obj锁的线程，找到monitor对象，在找到waitset，对里面全部线程进行唤醒
+  - [wait and notify demo](./src/main/java/org/example/waitandnotify/WaitAndNotifyDemo.java)
