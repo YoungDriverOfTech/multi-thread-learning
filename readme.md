@@ -407,3 +407,42 @@ public class Demo{
 - 锁对象被其他线程使用，使用的时机必须错开，即当前线程已经退出同步代码块，锁对象目前是可偏向状态。然后又有新的线程来使用这个锁对象，就会由于偏向锁 -> 轻量级锁
 - wait/notify机制，这种机制只有重量级锁有，所以一定会退出偏向状态
 
+### 批量重偏向
+对象被多个线程使用，但是使用的时机上是错开的，没有竞争。偏向T1线程的对象，有可能偏向T2线程，偏向就是对象中的markword存储的线程ID从T1变成T2  
+当撤销偏向锁阈值到达20次后，jvm会觉得是不是自己偏向错了，会重新偏向。
+
+```java
+import java.util.ArrayList;
+
+class Demo {
+  public static void main(String[] args) {
+      
+    List<Object> list = new ArrayList<>();
+    Thread t1 = new Thread(() -> {
+      for (int i = 0; i < 30; i++) {
+        Object o = new Object();
+        list.add(o);
+
+        // 此时30个对象依次进入同步代码块，那么会有30个对象偏向t1线程
+        synchronized (o) {
+          // todo 
+        }
+      }
+    }, "t1").start();
+    
+    // 执行逻辑，等到t1线程执行完
+
+    Thread t2 = new Thread(() -> {
+      for (int i = 0; i < 30; i++) {
+        Object o = list.get(i);
+        // 此时偏向t1的对象会发生：偏向撤销 -> 升级到轻量级锁
+        // 这个过程重复20次以后，jvm开始批量重偏向，把剩下的10个对象直接偏向到 t2线程
+        synchronized (o) {
+          // todo 
+        }
+      }
+    }, "t2").start();
+  }
+}
+```
+
