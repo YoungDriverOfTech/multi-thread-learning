@@ -34,6 +34,28 @@ public class GuardedSuspensionDemo {
 class GuardedObject {
     private Object guardedObject;
 
+    // 线程1获取线程2的结果, 指定最大的等待时间
+    public Object get(long timeout) throws InterruptedException {
+        synchronized (this) {
+
+            long beginTime = System.currentTimeMillis();
+            long passedTime = 0;
+
+            while (guardedObject == null) {
+                long waitTime = timeout - passedTime;
+                if (waitTime <= 0) {
+                    break;
+                }
+
+                log.info("线程2，还没把结果传过来");
+                this.wait(waitTime);
+                passedTime = System.currentTimeMillis() - beginTime;
+            }
+        }
+
+        return guardedObject;
+    }
+
     // 线程1获取线程2的结果
     public Object get() throws InterruptedException {
         synchronized (this) {
