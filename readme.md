@@ -459,3 +459,12 @@ class Demo {
 - obj.notify(): 获取到obj锁的线程，找到monitor对象，在找到waitset，调里面一个线程进行唤醒
 - obj.notifyAll(): 获取到obj锁的线程，找到monitor对象，在找到waitset，对里面全部线程进行唤醒
   - [wait and notify demo](./src/main/java/org/example/waitandnotify/WaitAndNotifyDemo.java)
+
+
+## 正确使用姿势
+### sleep(long n) / wait(long n)的区别
+1. sleep是Thread的方法，wait是Object的方法
+2. sleep不需要配合synchronized使用，wait必须要
+3. sleep不会释放锁，但是wait会
+4. 他们的状态都是TIMED_WAITING
+
