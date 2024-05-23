@@ -468,3 +468,75 @@ class Demo {
 3. sleep不会释放锁，但是wait会
 4. 他们的状态都是TIMED_WAITING
 
+
+## 同步模式之保护性暂停
+### 概念
+Guarded suspension，用一个线程等待另一个线程的执行结果
+要点：
+- 有一个结果需要从一个线程传递到另一个线程，让他们关联同一个Guarded suspension
+- 如果有结果不断的从一个线程传递到另一个线程，那么使用消息队列（生产者/消费者）
+- JDK中，join/future的实现就是采用此种模式
+- 因为要等待另一方的结果，因为归类到同步模式
+- ![img_1.png](./images/img_23.png)
+
+### 代码
+[GuardedSuspensionDemo](./src/main/java/org/example/designpattern/GuardedSuspensionDemo.java)
+```java
+package org.example.designpattern;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class GuardedSuspensionDemo {
+    public static void main(String[] args) {
+        GuardedObject guarded = new GuardedObject();
+
+        // 线程1 已进入逻辑，直接wait，等待结果
+        new Thread(() -> {
+            try {
+                Object result = guarded.get();
+                log.info("result: {}", result);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+        }, "t1").start();
+
+        // 线程2 进入逻辑生产一个字符串给线程1
+        new Thread(() -> {
+            guarded.set("wahahahahahhaha");
+        }, "t2").start();
+
+        
+    }
+}
+
+/**
+ * 线程1需要从线程2中获取结果
+ */
+@Slf4j
+class GuardedObject {
+    private Object guardedObject;
+
+    // 线程1获取线程2的结果
+    public Object get() throws InterruptedException {
+        synchronized (this) {
+            while (guardedObject == null) {
+                log.info("线程2，还没把结果传过来");
+                this.wait();
+            }
+        }
+
+        return guardedObject;
+    }
+
+    // 线程2生产结果，放到guardedObject中
+    public void set(Object object) {
+        synchronized (this) {
+            log.info("生产好了");
+            this.guardedObject = object;
+            this.notify();
+        }
+    }
+}
+```

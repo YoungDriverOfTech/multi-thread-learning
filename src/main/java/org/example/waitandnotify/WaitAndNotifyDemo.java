@@ -13,7 +13,7 @@ public class WaitAndNotifyDemo {
             // t1 获取到锁
             synchronized (obj) {
                 try {
-
+                    log.info("t1 has lock");
                     // t1 进入waitset，等待被唤醒。然后释放锁obj，此时obj可以被其他线程获取
                     obj.wait();
                 } catch (InterruptedException e) {
@@ -27,6 +27,7 @@ public class WaitAndNotifyDemo {
             synchronized (obj) {
                 try {
                     // t2 进入waitset，等待被唤醒。然后释放锁obj，此时obj可以被其他线程获取
+                    log.info("t2 has lock");
                     obj.wait();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -35,7 +36,7 @@ public class WaitAndNotifyDemo {
             log.info("t2 do things");
         }, "t2").start();
 
-        Thread.sleep(2000);
+        Thread.sleep(200);
 
         // 主线程获取到锁，然后唤醒waitset中的其他线程
         synchronized (obj) {
