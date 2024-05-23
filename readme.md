@@ -488,27 +488,27 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GuardedSuspensionDemo {
-    public static void main(String[] args) {
-        GuardedObject guarded = new GuardedObject();
+  public static void main(String[] args) {
+    GuardedObject guarded = new GuardedObject();
 
-        // 线程1 已进入逻辑，直接wait，等待结果
-        new Thread(() -> {
-            try {
-                Object result = guarded.get();
-                log.info("result: {}", result);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+    // 线程1 已进入逻辑，直接wait，等待结果
+    new Thread(() -> {
+      try {
+        Object result = guarded.get();
+        log.info("result: {}", result);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
 
-        }, "t1").start();
+    }, "t1").start();
 
-        // 线程2 进入逻辑生产一个字符串给线程1
-        new Thread(() -> {
-            guarded.set("wahahahahahhaha");
-        }, "t2").start();
+    // 线程2 进入逻辑生产一个字符串给线程1
+    new Thread(() -> {
+      guarded.set("wahahahahahhaha");
+    }, "t2").start();
 
-        
-    }
+
+  }
 }
 
 /**
@@ -516,27 +516,49 @@ public class GuardedSuspensionDemo {
  */
 @Slf4j
 class GuardedObject {
-    private Object guardedObject;
+  private Object guardedObject;
 
-    // 线程1获取线程2的结果
-    public Object get() throws InterruptedException {
-        synchronized (this) {
-            while (guardedObject == null) {
-                log.info("线程2，还没把结果传过来");
-                this.wait();
-            }
+  // 线程1获取线程2的结果, 指定最大的等待时间
+  public Object get(long timeout) throws InterruptedException {
+    synchronized (this) {
+
+      long beginTime = System.currentTimeMillis();
+      long passedTime = 0;
+
+      while (guardedObject == null) {
+        long waitTime = timeout - passedTime;
+        if (waitTime <= 0) {
+          break;
         }
 
-        return guardedObject;
+        log.info("线程2，还没把结果传过来");
+        this.wait(waitTime);
+        passedTime = System.currentTimeMillis() - beginTime;
+      }
     }
 
-    // 线程2生产结果，放到guardedObject中
-    public void set(Object object) {
-        synchronized (this) {
-            log.info("生产好了");
-            this.guardedObject = object;
-            this.notify();
-        }
+    return guardedObject;
+  }
+
+  // 线程1获取线程2的结果
+  public Object get() throws InterruptedException {
+    synchronized (this) {
+      while (guardedObject == null) {
+        log.info("线程2，还没把结果传过来");
+        this.wait();
+      }
     }
+
+    return guardedObject;
+  }
+
+  // 线程2生产结果，放到guardedObject中
+  public void set(Object object) {
+    synchronized (this) {
+      log.info("生产好了");
+      this.guardedObject = object;
+      this.notify();
+    }
+  }
 }
 ```
