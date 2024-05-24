@@ -519,6 +519,7 @@ class GuardedObject {
   private Object guardedObject;
 
   // 线程1获取线程2的结果, 指定最大的等待时间
+  // 这个方法就是Thread.join的原理。保护性暂停模式
   public Object get(long timeout) throws InterruptedException {
     synchronized (this) {
 
