@@ -689,3 +689,30 @@ final class Message {
 // 线程对象就是t1，t2的thread对象
 + LockSupport.unPark(线程对象)
 ```
+
+### 原理
+每个线程都有自己的一个parker对象，由三部分组成_counter, _cond, mutex
+- 线程就像是一个旅人，parker是背包。cond是帐篷，_counter是干粮（0:没有， 1：有）
+- 调用park方法，就是看看是否需要停下来休息
+  - 如果没有干粮（_counter=0），那么需要进入帐篷休息
+  - 如果有干粮（_counter=1 -> _counter=0）消耗一个干粮，可以继续前进
+- 调用unpack方法,让干粮充足（使_counter=1）
+  - 如果线程还在休息，唤醒线程继续前进
+  - 如果线程本身还在运行状态，那下次调用part方法的时候只会消耗干粮（使_counter=0），并不会停止线程
+    - 多次调用unpark方法只会补充一次干粮
+
+### 例子 park方法
+![img_1.png](./images/img_25.png)
+1. 当前线程调用Unsafe.park方法
+2. 检查_counter，本情况为0，获得mutex互斥锁
+3. 进入_cond条件变量阻塞
+4. 设置_counter=0
+
+### 例子 unpark方法
+![img_1.png](./images/img_26.png)
+1. 调用unPark方法，设置_counter=1
+2. 当前线程调用park方法，
+3. 检查_counter，本情况为1，无需阻塞
+4. 设置_counter为0
+
+
