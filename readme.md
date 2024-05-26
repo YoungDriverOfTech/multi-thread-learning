@@ -716,3 +716,15 @@ final class Message {
 4. 设置_counter为0
 
 
+## 线程状态转换
+### 转换图和其对应的方法
+![img_1.png](./images/img_27.png)
+#### 情况1. NEW -> RUNNABLE  
+> 当调用t.start()
+
+#### 情况2. RUNNABLE <-> WAITING
+t线程使用synchronized(obj)获取对象锁之后
+- 调用obj.wait()方法时，t线程会从RUNNABLE -> WAITING
+- 调用obj.notify(), obj.notifyAll(), t.interrupt()时候
+  - 竞争锁成功， WAITING -> RUNNABLE
+  - 竞争锁失败， WAITING -> BLOCKED
