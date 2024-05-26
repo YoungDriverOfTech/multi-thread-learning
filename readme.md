@@ -734,7 +734,8 @@ t线程使用synchronized(obj)获取对象锁之后
   - 注意是**当前线程**在**t线程对象**的监视器上等待
 - **t线程**线程运行结束，或者调用了**当前线程**的interrupt方法，**当前线程**从WAITING -> RUNNABLE
 
-#### 情况3. RUNNABLE <-> WAITING
+#### 情况4. RUNNABLE <-> WAITING
 - 当前线程调用了LockSupport.park()方法，会让当前线程从RUNNABLE -> WAITING
 - 调用LockSupport.unpark(目标线程)或者调用了目标线程的inerrupt方法，会让目标线程WAITING -> RUNNABLE
 
+#### 情况5. RUNNABLE <-> TIMED_WAITING
