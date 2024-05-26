@@ -674,3 +674,18 @@ final class Message {
     }
 }
 ```
+
+## LockSupport： Park & UnPark
+### 概念和使用
+和Object的wait和notify相比
+- wait，notify，notifyAll必须配合Object的Monitor对象一起使用，而park/unPark不用
+- park/unPark以线程为单位来进行阻塞和唤醒，notify不能精确的唤醒某一个线程
+- park/unPark可以先进性unPark，后续代码即使执行park方法，线程也不会阻塞
+
+```diff
+// 在正在执行中线程中运行
++ LockSupport.park()
+
+// 线程对象就是t1，t2的thread对象
++ LockSupport.unPark(线程对象)
+```
