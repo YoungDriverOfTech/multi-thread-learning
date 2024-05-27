@@ -821,3 +821,46 @@ public class DeadLockDemo {
 
 #### jconsole
 ![img_1.png](./images/img_30.png)
+
+### 活锁
+两个线程相互改变对方的结束条件,最后谁都无法结束
+[Alive Lock](./src/main/java/org/example/deadlock/AliveLockDemo.java)
+
+```java
+package org.example.deadlock;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class AliveLockDemo {
+
+    static int count = 10;
+
+    public static void main(String[] args) {
+        new Thread(() -> {
+            while (count > 0) {
+                try {
+                    Thread.sleep(200);
+                    count--;
+                    log.info("count: {}", count);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, "t1").start();
+
+        new Thread(() -> {
+            while (count < 20) {
+                try {
+                    Thread.sleep(200);
+                    count++;
+                    log.info("count: {}", count);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, "t2").start();
+    }
+}
+
+```
