@@ -34,6 +34,7 @@ public class InterruptDemo {
     public void interruptNormalRunningDemo() throws InterruptedException {
         Thread t1 = new Thread(() -> {
             while (true) {
+                log.info("test");
                 boolean interrupted = Thread.currentThread().isInterrupted();
                 if (interrupted) {
                     log.info("interrupt by other threads, execution finished");

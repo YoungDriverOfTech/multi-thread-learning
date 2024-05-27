@@ -739,3 +739,28 @@ t线程使用synchronized(obj)获取对象锁之后
 - 调用LockSupport.unpark(目标线程)或者调用了目标线程的inerrupt方法，会让目标线程WAITING -> RUNNABLE
 
 #### 情况5. RUNNABLE <-> TIMED_WAITING
+t线程使用synchronized(obj)获取对象锁之后
+- 调用obj.wait(long n)方法时，t线程会从RUNNABLE -> TIMED_WAITING
+- t线程等待时间超过了n毫秒，或者调用obj.notify(), obj.notifyAll(), t.interrupt()时候
+  - 竞争锁成功， TIMED_WAITING -> RUNNABLE
+  - 竞争锁失败， TIMED_WAITING -> BLOCKED
+
+#### 情况6. RUNNABLE <-> TIMED_WAITING
+- 当线程调用t.join(long n)方法的时候，当前程会从RUNNABLE -> TIMED_WAITING
+  - 注意是当前线程在t对象的monitor上等待
+- 当前线程等待时间超过n毫秒，或者t线程运行结束，或者调用了当前线程的interrupt方法，当前线程从TIMED_WAITING -> RUNNABLE
+
+#### 情况7. RUNNABLE <-> TIMED_WAITING
+- 调用Thread.sleep(long n)方法时，当前线程会从RUNNABLE -> TIMED_WAITING
+- 当前线程等待时间超过n毫秒，当前线程从TIMED_WAITING -> RUNNABLE
+
+#### 情况8. RUNNABLE <-> TIMED_WAITING
+- 当线程调用LockSupport.parkNanos(long nanos)或者LockSupport.parkUnit(long miles),当前线程从RUNNABLE -> TIMED_WAITING
+- 调用了LockSupport.unpark()或者interrupt方法，或者是等待超时的时候，TIMED_WAITING -> RUNNABLE
+
+#### 情况9. RUNNABLE <-> BLOCKED
+- t线程在 synchronized(obj)  竞争对象锁的时候失败了，RUNNABLE -> BLOCKED
+- 其余线程执行完毕同步代码块，t线程抢到了锁，BLOCKED -> RUNNABLE
+
+#### 情况9. RUNNABLE <-> TERMINATED
+当前线程所有代码运行完毕
