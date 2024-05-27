@@ -767,3 +767,49 @@ t线程使用synchronized(obj)获取对象锁之后
 
 ### 一个线程可以持有多把锁吗？
 可以，但是容易发生死锁
+
+## 线程活跃性
+### 死锁
+t1线程已经获得了锁A，并且将要去获取锁B  
+t2线程已经获得了锁B，并且将要去获得锁A
+[Dead Lock](./src/main/java/org/example/deadlock/DeadLockDemo.java)
+
+```java
+package org.example.deadlock;
+
+public class DeadLockDemo {
+    public static void main(String[] args) {
+        Object a = new Object();
+        Object b = new Object();
+
+        new Thread(() -> {
+            synchronized (a) {
+                try {
+                    Thread.sleep(100);
+
+                    synchronized (b) {
+                        System.out.println("b = " + b);
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, "t1").start();
+
+        new Thread(() -> {
+            synchronized (b) {
+                try {
+                    Thread.sleep(50);
+
+                    synchronized (a) {
+                        System.out.println("b = " + b);
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, "t2").start();
+    }
+}
+
+```
