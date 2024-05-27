@@ -864,3 +864,6 @@ public class AliveLockDemo {
 }
 
 ```
+
+### 饥饿
+一个线程由于优先级太低，始终得不到CPU的运行时间便，也不能结束执行
