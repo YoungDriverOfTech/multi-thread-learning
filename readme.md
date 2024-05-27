@@ -813,3 +813,11 @@ public class DeadLockDemo {
 }
 
 ```
+
+### 定位死锁
+#### 使用jps + jstack命令
+![img_1.png](./images/img_28.png)
+![img_1.png](./images/img_29.png)
+
+#### jconsole
+![img_1.png](./images/img_30.png)
