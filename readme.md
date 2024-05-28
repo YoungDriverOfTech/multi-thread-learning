@@ -867,6 +867,7 @@ public class AliveLockDemo {
 
 ### 饥饿
 一个线程由于优先级太低，始终得不到CPU的运行时间便，也不能结束执行
+[interruptbly](./src/main/java/org/example/reentrantlock/ReentrantLockDemo.java)
 
 ## ReentrantLock
 ### 概念
@@ -894,6 +895,7 @@ try {
 
 ### 可打断
 在等待锁的时候，可以被打断（注意是：在等待获得锁的时候被打断，不是获得锁之后被打断）
+
 使用
 ```diff
 + lock.lockInterruptibly();
