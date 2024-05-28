@@ -992,3 +992,18 @@ public class TryLockDemo {
 }
 
 ```
+
+### 公平锁
+ReentrantLock默认是不公平的，通过构造方法来指定是否是公平  
+```diff
+    /**
+     * Creates an instance of {@code ReentrantLock} with the
+     * given fairness policy.
+     *
+     * @param fair {@code true} if this lock should use a fair ordering policy
+     */
+    public ReentrantLock(boolean fair) {
++       sync = fair ? new FairSync() : new NonfairSync();
+    }
+```
+
