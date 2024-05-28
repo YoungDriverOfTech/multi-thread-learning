@@ -875,7 +875,7 @@ public class AliveLockDemo {
 - 可中断
 - 可以设置超时时间
 - 可以设置为公平锁
-- 支持多个条件变量（多个entry list）
+- 支持多个条件变量（多个wait set）
 - 与synchronized一样，都支持重入
 - 基本语法
 ```diff
@@ -994,7 +994,7 @@ public class TryLockDemo {
 ```
 
 ### 公平锁
-ReentrantLock默认是不公平的，通过构造方法来指定是否是公平  
+ReentrantLock默认是不公平的，通过构造方法来指定是否是公平, 一般没有设置必须，因为会降低并发  
 ```diff
     /**
      * Creates an instance of {@code ReentrantLock} with the
@@ -1007,3 +1007,42 @@ ReentrantLock默认是不公平的，通过构造方法来指定是否是公平
     }
 ```
 
+### 条件变量
+类似于wait notify notifyAll  
+ReentrantLock的条件变量比synchronized强大的地方在于，支持多个条件变量
+
+使用流程
+- await前需要获得锁
+- await执行后，会释放锁，进入conditionObject 等待
+- await的线程被唤醒（或打断，或超时），需要重新竞争lock
+- 竞争锁成功后，从await后继续执行
+```java
+package org.example.reentrantlock;
+
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
+@Slf4j
+public class ConditionVariableDemo {
+  private static ReentrantLock lock = new ReentrantLock();
+
+  public static void main(String[] args) throws InterruptedException {
+
+    // 创建一个新的条件变量
+    Condition condition1 = lock.newCondition();
+    Condition condition2 = lock.newCondition();
+
+    lock.lock();
+    // 进入waitSet，让线程进入休息室(wait set)等待
+    condition1.wait();
+
+
+    // 让线程从休息室(wait set)里面出来,重新竞争锁
+    condition1.signal();
+    condition1.signalAll();
+  }
+}
+
+```
