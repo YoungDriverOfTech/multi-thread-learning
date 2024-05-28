@@ -1044,5 +1044,4 @@ public class ConditionVariableDemo {
     condition1.signalAll();
   }
 }
-
 ```
