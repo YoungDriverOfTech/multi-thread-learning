@@ -190,7 +190,7 @@ while (true) {
 # 共享模型之管程
 ## Synchronized 
 加在方法上，相当于锁住了this对象
-```java
+```diff
 public synchronized void demo() {
     
 }
@@ -203,7 +203,7 @@ synchronized(this) {
 ```
 
 加载静态方法上，相当于锁住了类对象
-```java
+```diff
 public synchronized static void demo() {
     
 }
@@ -251,7 +251,7 @@ Markword结构
 - 不加 synchronized 的对象不会关联监视器，不遵从以上规则
 
 ### 字节码解释monitor
-```java
+```diff
 public static void main(String[] args) {
     Object lock = new Object();
     synchronized (lock) {
@@ -259,7 +259,7 @@ public static void main(String[] args) {
     }
 }
 ```
-```java
+```diff
 0: 	new				#2		// new Object
 3: 	dup
 4: 	invokespecial 	#1 		// invokespecial <init>:()V，非虚方法
@@ -297,7 +297,7 @@ LocalVariableTable:
 可重入锁：线程可以进入任何一个它已经拥有的锁所同步着的代码块，可重入锁最大的作用是避免死锁  
 轻量级锁在没有竞争时（锁重入时），每次重入仍然需要执行 CAS 操作，Java 6 才引入的偏向锁来优化
 锁重入实例：  
-```java
+```diff
 static final Object obj = new Object();
 public static void method1() {
     synchronized( obj ) {
@@ -867,3 +867,28 @@ public class AliveLockDemo {
 
 ### 饥饿
 一个线程由于优先级太低，始终得不到CPU的运行时间便，也不能结束执行
+
+## ReentrantLock
+### 概念
+相对于synchronized，它具备以下特点
+- 可中断
+- 可以设置超时时间
+- 可以设置为公平锁
+- 支持多个条件变量（多个entry list）
+- 与synchronized一样，都支持重入
+- 基本语法
+```diff
+// 获取锁
+reentrantLock.lock();
+try {
+  // 临界区
+} finally {
+  // 释放锁
+  reentrantLock.unlock();
+}
+```
+
+### 可重入
+可重入是指同一个线程如果首次获得了这把锁，那么因为他是这把锁的拥有者，因此有权利再次获得这把锁  
+如果是不可重入锁，那么第二次获得锁时，自己也会被锁挡住
+
