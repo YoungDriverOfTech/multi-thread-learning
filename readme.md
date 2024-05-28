@@ -1036,7 +1036,7 @@ public class ConditionVariableDemo {
 
     lock.lock();
     // 进入waitSet，让线程进入休息室(wait set)等待
-    condition1.wait();
+    condition1.wait();  // 一般有一个线程会执行这个代码，另一个线程回去执行condition1.signal();来完成线程间的合作
 
 
     // 让线程从休息室(wait set)里面出来,重新竞争锁
