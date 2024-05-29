@@ -1054,3 +1054,26 @@ JMM体现在以下几个方面
 - 可见性：保证指令不会受到cpu缓存的影响
 - 有序性：保证指令不会首指令并行优化的影响
 
+## 可见性问题
+### 退不出的循环
+先看一个现象，main线程对run变量的修改对于t线程不可见，导致了t线程无法停止
+```java
+package org.example.jmm;
+
+public class EndlessLoop {
+    
+    static boolean run = true;
+    public static void main(String[] args) throws InterruptedException {
+        new Thread(() -> {
+            while (run) {
+                // 
+            }
+        }).start();
+        
+        Thread.sleep(1);
+        
+        run = false;
+    }
+}
+
+```
