@@ -1075,5 +1075,4 @@ public class EndlessLoop {
         run = false;
     }
 }
-
 ```
