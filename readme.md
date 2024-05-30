@@ -1086,3 +1086,11 @@ public class EndlessLoop {
 
 3，1秒之后，main线程修改了run的值，并同步至主存，而t是从自己的工作内存中的告诉缓存中读取这个变量的值，结果永远是旧值
 ![img_1.png](./images/img_33.png)
+
+解决办法：  
+volatile关键字，禁止从工作内存中获取共享变量的值.  用来修饰成员变量和静态变量，他可以避免线程从自己的工作缓存中超找变量的值，必须到主存中获取它的值。线程操作volatile变量都是直接操作主存  
+（synchronized关键字也可以）
+```diff
++ volatile static boolean run = true;
+```
+
