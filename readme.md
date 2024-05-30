@@ -1076,3 +1076,13 @@ public class EndlessLoop {
     }
 }
 ```
+
+原因：
+1，初始状态，t线程刚开始从主内存读取了run的值到工作内存
+![img_1.png](./images/img_31.png)
+
+2，因为t线程要频繁从主内存中读取run的值，JIT编译器会将run的值缓存至自己的工作内存中的告诉缓存中，减少对于主内存中run的访问，提高效率
+![img_1.png](./images/img_32.png)
+
+3，1秒之后，main线程修改了run的值，并同步至主存，而t是从自己的工作内存中的告诉缓存中读取这个变量的值，结果永远是旧值
+![img_1.png](./images/img_33.png)
