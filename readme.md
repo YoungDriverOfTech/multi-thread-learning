@@ -1135,7 +1135,7 @@ volatile的底层实现原理是内存屏障，Memory Barrier（Memory Fence）
 - 对volatile变量的写指令后（即给volatile变量赋值），会加入写屏障
 - 对volatile变量的读指令前（即用到了volatile变量），会加入读屏障
 
-### 这么保证可见性
+### 保证可见性
 - 写屏障（sfence）保证在该屏障之前的，对共享变量的变动，都同步到主存当中
 ```diff
 public void actor2(I_Result r) {
@@ -1158,3 +1158,13 @@ public void actor1(I_Result r) {
 } 
 ```
 ![img_1.png](./images/img_36.png)
+
+### 保证有序性
+- 写屏障会确保指令重排时，不会将屏障之前的代码排在屏障之后
+- 读屏障会确保指令重排时，不会将屏障之后的代码排在屏障之前  
+![img_1.png](./images/img_37.png)
+
+PS： 不能解决指令交错：
+- 写屏障仅仅是保证之后的读能都读到最新的结果，但不能保证读跑到写屏障前面去
+- 而有序性的保证也只是保证了本线程内相关代码不会重排
+![img_1.png](./images/img_38.png)
