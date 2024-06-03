@@ -1130,5 +1130,31 @@ JVM在不影响正确性的前提下，可以调整语句执行的顺序，这�
 ### 禁止指令重排
 volatile关键字，某个变量加了这个关键字，可以防止这个变量所在地方之前的代码被重新排列
 
+## Volatile原理
+volatile的底层实现原理是内存屏障，Memory Barrier（Memory Fence）
+- 对volatile变量的写指令后（即给volatile变量赋值），会加入写屏障
+- 对volatile变量的读指令前（即用到了volatile变量），会加入读屏障
 
+### 这么保证可见性
+- 写屏障（sfence）保证在该屏障之前的，对共享变量的变动，都同步到主存当中
+```diff
+public void actor2(I_Result r) {
++ num = 2;
++ ready = true; // ready是volatile赋值，中加入写屏障，写屏障生效部分是，屏障之前（绿色部分）
+  // 写屏障
+}
+```
 
+- 读屏障（lfence）保证在该屏障之后，对共享变量的读取，加载的是主内存中最新数据
+```diff
+public void actor1(I_Result r) {
+  // 读屏障
+  // ready是volatile读取值，加入读屏障，读屏障生效部分是，屏障之后（绿色部分）
++ if (ready) {
++   r.r1 = num + num;
++ } else {
++   r.r1 = 1;
++ }
+} 
+```
+![img_1.png](./images/img_36.png)
