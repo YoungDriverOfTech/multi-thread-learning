@@ -1170,3 +1170,25 @@ PS： 不能解决指令交错：
 ![img_1.png](./images/img_38.png)
 
 # 共享模型之无锁（乐观锁）
+## CAS与volatile
+AtomicInteger，内部并没有用锁来保护共享变量的线程安全。那么无锁怎么实现线程安全呢？
+```diff
+public void withdraw(Integer amount) {
+  while (true) {
+    int prev = balance.get(); // 调用AtomicInteger的get方法获取最新的值
+    int next = prev - amount;
++   // 比较并且设置，会拿着prev值和balance里面最新的值进行比较，如果不同返回false，那么while会继续判断。直到相同，说明可以更新了
++   if (balance.compareAndSet(prev, next)) {
+      break;
+    }
+  }
+}
+```
+
+其中的关键是compareAndSet，它的简称就是CAS（也有Compare and swap的说法），它必须是院子操作。
+![img_1.png](./images/img_39.png)
+
+> PS:  
+> 其实cas的底层是lock cmpxchg指令（x86）架构，在单核CPU和多核CPU下都能够保证【比较-交换】的原子性  
+> 在多核状态下，某个核执行到带lock的指令时，CPU会让总线锁住，当这个核把次指令执行完毕，再开启总线，这个过程中不会被线程的调度机制打断，保证了多个线程对内存操作的准确性，是原子的
+
