@@ -1227,7 +1227,7 @@ JUC并发包提供了：
 
 一些复杂方法，自定义运算规则
 ```diff
-AtomicInteger i = new AtomicInteger(0);
+  AtomicInteger i = new AtomicInteger(0);
 
 + // 传入的是一个运算方法，这个方法用来计算i的值，参数是一个functional的接口
 + i.updateAndGet(value -> value * 10)
