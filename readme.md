@@ -1182,6 +1182,9 @@ public void withdraw(Integer amount) {
       break;
     }
   }
+  
+  // 上述方法也可以简写为
++ balance.getAndAdd(-1 * amount) // 获取并添加，添加负数代表减少余额  
 }
 ```
 
