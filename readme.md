@@ -1233,6 +1233,6 @@ JUC并发包提供了：
 + i.updateAndGet(value -> value * 10)
 ```
 
-
+### 模拟updateAndGet
 
 
