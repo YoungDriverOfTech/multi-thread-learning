@@ -1377,3 +1377,9 @@ public class AbaProblemResolved {
 }
 
 ```
+
+### AtomicMarkableRefernce
+AtomicStampedReference可以给原子引用加上版本号，追踪原子殷红的整个变化过程，如：A->B->A->C，通过AtomicStampedReference，可以知道，引用变量途中被变更了几次。  
+但是有时候，并不关心引用变量变更了几次，只是单纯的关心是否变更过，所以就有了AtomicMarkableRefernce。 用法和通过AtomicStampedReference一样。
+可以认为是ABA问题将错就错。
+
