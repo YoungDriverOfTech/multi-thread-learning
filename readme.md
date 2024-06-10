@@ -1235,7 +1235,14 @@ JUC并发包提供了：
 
 ### 模拟updateAndGet
 ```diff
-
+while (true) {
+  int pre = i.get();
+  int next = prev * 10;
+  if (i.compareAndSet(prev, next)) {
+    break;
+  }
+}
 ```
+
 
 
