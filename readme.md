@@ -1389,3 +1389,44 @@ AtomicStampedReference可以给原子引用加上版本号，追踪原子殷红�
 - AtomicLongArray
 - AtomicReferenceArray
 
+### 字段更新器
+保护的是对象里面的属性（成员变量），当多个线程访问同一个对象的某个属性时，能保护这个属性，实现线程安全  
+- AtomicReferenceFieldUpdater // 字段
+- AtomicIntegerFieldUpdater
+- AtomicLongFieldUpdater
+
+利用字段更新器，可以针对对象的某个字段进行原子操作，只能配合volatile修饰的字段使用，否则会出现异常
+
+```java
+package org.example.cas;
+
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+
+@Slf4j
+public class UpdaterDemo {
+  public static void main(String[] args) {
+    Student student = new Student();
+
+    // 3个参数分别代表：要修改的类，要修改的字段类型，要修改的字段名字
+    AtomicReferenceFieldUpdater<Student, String> updater =
+            AtomicReferenceFieldUpdater.newUpdater(Student.class, String.class, "name");
+
+    // 第二个参数是当前对象的字段的值
+    updater.compareAndSet(student, null, "Lisi");
+    System.out.println("student = " + student);
+  }
+}
+
+class Student {
+  volatile String name;
+
+  @Override
+  public String toString() {
+    return "Student{" +
+            "name='" + name + '\'' +
+            '}';
+  }
+}
+```
