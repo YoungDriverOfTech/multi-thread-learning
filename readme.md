@@ -1383,3 +1383,9 @@ AtomicStampedReference可以给原子引用加上版本号，追踪原子殷红�
 但是有时候，并不关心引用变量变更了几次，只是单纯的关心是否变更过，所以就有了AtomicMarkableRefernce。 用法和通过AtomicStampedReference一样。
 可以认为是ABA问题将错就错。
 
+### 原子数组
+当修改的对象不是某个值，而是某个引用中的属性的值，比如数组中某个元素，那么就需要用到数组相关的原子类
+- AtomicIntegerArray
+- AtomicLongArray
+- AtomicReferenceArray
+
