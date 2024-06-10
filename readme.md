@@ -1244,5 +1244,39 @@ while (true) {
 }
 ```
 
+### 原子引用
+原子引用类型：
+- AtomicReference
+- AtomicMarkableReference
+- AtomicStampledReference
 
+```java
+import java.math.BigDecimal;
+import java.util.concurrent.atomic.AtomicReference;
+
+class DecimalAccountCas implements DecimalAccount {
+  private AtomicReference<BigDecimal> balance;
+
+  public DecimalAccountCas(BigDecimal balance) {
+    this.balance = new AtomicReference<>(balance);
+  }
+
+  public BigDevimal getBalance() {
+    return balance.get();
+  }
+
+  public void withdraw(BigDecimal amount) {
+    while (true) {
+      BigDecimal pre = balance.get();
+      BigDecimal next = pre.subtract(amount);
+        
+      // compareAndSet会比较传入的pre，和当前balance的值是否相同，只有相同的时候才会return true。这是cas的思想
+      // PS：使用cas，最好开启线程数量要小于等于CPU数量
+      if (balance.compareAndSet(pre, next)) {
+        break;
+      }
+    }
+  }
+}
+```
 
