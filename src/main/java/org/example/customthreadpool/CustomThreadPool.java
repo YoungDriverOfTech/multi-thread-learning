@@ -13,10 +13,15 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CustomThreadPool {
     public static void main(String[] args) {
         ThreadPool threadPool = new ThreadPool(2, 1000, TimeUnit.MILLISECONDS, 10);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 15; i++) {
             int j = i;
 
             threadPool.execute(() -> {
+                try {
+                    Thread.sleep(1000000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 log.info("当前任务只在被执行： {}", j);
             });
         }
@@ -180,6 +185,7 @@ class BlockingQueue<T> {
             // 队列满了，不让生产者放任务
             while (queue.size() == capacity) {
                 try {
+                    log.info("等待加入任务队列: {}", element);
                     fullWaitSet.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -187,6 +193,7 @@ class BlockingQueue<T> {
             }
 
             // 队列不满，可以放，并且放了任务之后，通知消费者，可以消费了
+            log.info("加入任务队列: {}", element);
             queue.addLast(element);
             emptyWaitSet.signal();
         } finally {
