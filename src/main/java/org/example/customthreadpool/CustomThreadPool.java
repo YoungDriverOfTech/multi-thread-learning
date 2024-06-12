@@ -2,12 +2,42 @@ package org.example.customthreadpool;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class CustomThreadPool {
+
+
 }
+
+class ThreadPool {
+    // 任务队列
+    private BlockingQueue<Runnable> taskQueue;
+
+    // 线程集合
+    private HashSet<Worker> workers = new HashSet<>();
+
+    // 核心线程数
+    private int coreSize;
+
+    // 获取任务的超时时间
+    private long timeout;
+    private TimeUnit timeUnit;
+
+    public ThreadPool(int coreSize, long timeout, TimeUnit timeUnit, int queueCapacity) {
+        this.coreSize = coreSize;
+        this.timeout = timeout;
+        this.timeUnit = timeUnit;
+        this.taskQueue = new BlockingQueue<>(queueCapacity);
+    }
+
+    class Worker {
+
+    }
+}
+
 
 class BlockingQueue<T> {
     // 1. 任务队列
@@ -24,6 +54,10 @@ class BlockingQueue<T> {
 
     // 5. 容量
     private int capacity;
+
+    public BlockingQueue(int capacity) {
+        this.capacity = capacity;
+    }
 
     // 带超时的阻塞获取
     public T poll(long timeout, TimeUnit unit) {
