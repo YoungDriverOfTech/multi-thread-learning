@@ -14,16 +14,26 @@ public class CustomThreadPool {
     public static void main(String[] args) {
         ThreadPool threadPool = new ThreadPool(1, 1000, TimeUnit.MILLISECONDS, 1, (queue, task) -> {
             // 1) 死等策略
-            queue.put(task);
+            // queue.put(task);
 
+            // 2）带超时时间的等待
+            // queue.offer(task, 500, TimeUnit.MILLISECONDS);
 
+            // 3) 让调用者线程放弃任务的执行
+            // log.info("放弃这个[{}]执行", task);
+
+            // 4) 让调用者抛出异常，不执行. 这种策略可以让当前任务之后的任务，都得不到执行
+            // throw new RuntimeException("任务执行失败" + task);
+
+            // 5) 让调用者自己执行任务
+            task.run();
         });
         for (int i = 0; i < 3; i++) {
             int j = i;
 
             threadPool.execute(() -> {
                 try {
-                    Thread.sleep(1000000L);
+                    Thread.sleep(1000L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
