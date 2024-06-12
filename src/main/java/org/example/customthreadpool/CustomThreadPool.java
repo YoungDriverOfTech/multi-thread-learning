@@ -179,13 +179,13 @@ class BlockingQueue<T> {
     }
 
     // 阻塞添加
-    public void put(T element) {
+    public void put(T task) {
         lock.lock();
         try {
             // 队列满了，不让生产者放任务
             while (queue.size() == capacity) {
                 try {
-                    log.info("等待加入任务队列: {}", element);
+                    log.info("等待加入任务队列: {}", task);
                     fullWaitSet.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -193,9 +193,40 @@ class BlockingQueue<T> {
             }
 
             // 队列不满，可以放，并且放了任务之后，通知消费者，可以消费了
-            log.info("加入任务队列: {}", element);
-            queue.addLast(element);
+            log.info("加入任务队列: {}", task);
+            queue.addLast(task);
             emptyWaitSet.signal();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    // 带超时时间的阻塞添加
+    public boolean offer(T task, long timeout, TimeUnit timeUnit) {
+        lock.lock();
+        try {
+            long nanos = timeUnit.toNanos(timeout);
+
+            // 队列满了，不让生产者放任务
+            while (queue.size() == capacity) {
+                try {
+                    log.info("等待加入任务队列: {}", task);
+                    if (nanos <= 0) {
+                        return false;
+                    }
+
+                    nanos = fullWaitSet.awaitNanos(nanos); // 返回剩余时间
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            // 队列不满，可以放，并且放了任务之后，通知消费者，可以消费了
+            log.info("加入任务队列: {}", task);
+            queue.addLast(task);
+            emptyWaitSet.signal();
+
+            return true;
         } finally {
             lock.unlock();
         }
