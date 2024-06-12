@@ -1,5 +1,7 @@
 package org.example.customthreadpool;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -7,17 +9,27 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+@Slf4j
 public class CustomThreadPool {
+    public static void main(String[] args) {
+        ThreadPool threadPool = new ThreadPool(2, 1000, TimeUnit.MILLISECONDS, 10);
+        for (int i = 0; i < 5; i++) {
+            int j = i;
 
-
+            threadPool.execute(() -> {
+                log.info("当前任务只在被执行： {}", j);
+            });
+        }
+    }
 }
 
+@Slf4j
 class ThreadPool {
     // 任务队列
     private BlockingQueue<Runnable> taskQueue;
 
     // 线程集合
-    private HashSet<Worker> workers = new HashSet<>();
+    private final HashSet<Worker> workers = new HashSet<>();
 
     // 核心线程数
     private int coreSize;
@@ -33,12 +45,60 @@ class ThreadPool {
         this.taskQueue = new BlockingQueue<>(queueCapacity);
     }
 
-    class Worker {
+    // 执行任务
+    public void execute(Runnable task) {
+        // 当任务数量还没超过coreSize的时，直接创建一个线程（work对象），去执行任务，并且把线程加入到workers中
+        // 如果任务数量超过coreSize，需要把任务装进任务队列暂存
+        synchronized (this) {
+            if (workers.size() < coreSize) {
+                Worker worker = new Worker(task);
+                log.info("新增 worker:{}, task:{}", worker, task);
+                workers.add(worker);
+                worker.start();
+            } else {
+                log.info("加入任务队列 {}", task);
+                taskQueue.put(task);
+            }
+        }
+    }
 
+    class Worker extends Thread{
+        private Runnable task;
+
+        public Worker(Runnable task) {
+            this.task = task;
+        }
+
+        @Override
+        public void run() {
+            // 执行任务
+            // 1）当task不为空，执行任务
+            // 2）当task执行完毕，再接着从任务队列中获取任务并执行
+            // 3) 如果当前task执行完毕，任务队列中的task也被执行完了，那么当前的这个work线程就可以被销毁了
+
+            // 注意taskQueue.take()会一直等待，等待生产者唤醒他们继续消费任务，如果想要使用带着过期时间的方法，可以使用poll。
+            // 这就是线程池的策略
+            // while (task != null || (task = taskQueue.take()) != null) {
+            while (task != null || (task = taskQueue.poll(timeout, timeUnit)) != null) {
+                try {
+                    log.info("正在执行 {}", task);
+                    task.run();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    task = null;
+                }
+            }
+
+            synchronized (workers) {
+                log.info("worker被移除 {}", this);
+                workers.remove(this);
+            }
+        }
     }
 }
 
-
+@Slf4j
 class BlockingQueue<T> {
     // 1. 任务队列
     private Deque<T> queue = new ArrayDeque<>();
@@ -114,7 +174,7 @@ class BlockingQueue<T> {
     }
 
     // 阻塞添加
-    public void pull(T element) {
+    public void put(T element) {
         lock.lock();
         try {
             // 队列满了，不让生产者放任务
