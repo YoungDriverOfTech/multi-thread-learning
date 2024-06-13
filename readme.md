@@ -1853,3 +1853,14 @@ class BlockingQueue<T> {
 }
 
 ```
+
+### ThreadPoolExecutor
+![image](./images/img_41.png)
+
+#### 线程状态
+ThreadPoolExecutor使用int的高3位来表示线程池状态，低29位表示线程数量
+![image](./images/img_42.png)
+
+从数字上比较，TERMINATED -> TIDYING -> STOP -> SHUTDOWN -> RUNNING  
+这些信息存储在一个原子变量ctl中，目的是将线程池状态与线程个数合二为一，这样就可以用一次cas原子操作进行赋值  
+![image](./images/img_43.png)
