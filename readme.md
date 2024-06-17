@@ -1864,3 +1864,24 @@ ThreadPoolExecutor使用int的高3位来表示线程池状态，低29位表示�
 从数字上比较，TERMINATED -> TIDYING -> STOP -> SHUTDOWN -> RUNNING  
 这些信息存储在一个原子变量ctl中，目的是将线程池状态与线程个数合二为一，这样就可以用一次cas原子操作进行赋值  
 ![image](./images/img_43.png)
+
+#### 构造方法
+```diff
+public ThreadPoolExecutor(
++ int corePoolSize, // 核心线程数量（最多保留的线程数）
++ int maximumPoolSize, // 最大线程数量（核心线程 + 应急线程）
++ long keepAliveTime, // 应急线程执行完任务后，如果没有新的任务可以执行，会存活的时间长度
++ TimeUnit unit, // 应急线程存活时间长度的单位
++ BlockingQueue<Runnable> workQueue, // 阻塞队列，用来存放任务
++ ThreadFactory threadFactory, // 线程工厂，可以位线程创建时七个好名字
++ RejectedExecutionHandler handler // 拒绝策略
+)
+```
+
+工作流程：  
+1. 初始化线程池，此时还没有线程
+2. 来了任务，创建核心线程，并且执行任务
+3. 核心线程满了，又来了心的任务，把任务放到阻塞队列中
+4. 阻塞队列满了，创建应急线程执行任务
+5. 创建应急线程的数量+核心线程数量已经到达了最大线程数量，再来任务的话，执行拒绝策略
+6. 应急线程执行完任务后，如果没有新的任务来，过了最大存活时间后，应急线程被销毁
