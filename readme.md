@@ -1976,3 +1976,22 @@ public static ExecutorService newCachedThreadPool(ThreadFactory threadFactory) {
   - 全部都是救急线程（60s后可以回收）
   - 救急线程可以无限创建
 - 使用了SynchronousQueue，其特点是，他没有容量，没有线程来取任务，那么放任务的时候会阻塞。只有线程先执行了取任务的操作，存任务的动作才能完成
+
+
+#### newSingleThreadExecutor
+```java
+public static ExecutorService newSingleThreadExecutor() {
+    return new FinalizableDelegatedExecutorService
+        (new ThreadPoolExecutor(1, 1,
+                                0L, TimeUnit.MILLISECONDS,
+                                new LinkedBlockingQueue<Runnable>()));
+}
+```
+
+使用场景：  
+希望多个任务排队执行。线程数量固定位1，任务数多于1时，会放入无界队列排队。任务执行完毕，这唯一的线程也不会被释放。  
+区别：  
+- 自己创建一个单线程串行执行任务，如果任务执行失败而终止那么没有任务不久措施，而线程池还会创建一个心线程，保证线程池正常工作  
+- Executors.newSingleThreadExecutor线程数时钟为1，不能修改
+  - FinalizableDelegatedExecutorService应用的是装饰器模式，之对外暴漏了ExecutorService接口，因此不能调用ThreadPoolExecutor中特有的方法
+
