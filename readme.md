@@ -1885,3 +1885,17 @@ public ThreadPoolExecutor(
 4. 阻塞队列满了，创建应急线程执行任务
 5. 创建应急线程的数量+核心线程数量已经到达了最大线程数量，再来任务的话，执行拒绝策略
 6. 应急线程执行完任务后，如果没有新的任务来，过了最大存活时间后，应急线程被销毁
+
+
+#### 拒绝策略
+如果队列选择了有界队列，那么任务超过了队列大小时，会创建maximumPoolSize - corePoolSize树木的线程来救急。  
+如果是无界队列，那么就会等核心线程来执行任务  
+
+JDK的拒绝策略有：  
+![image](./images/img_44.png)  
+
+- AbortPolicy: 让调用者抛出RejectedExecutionException异常，这是默认策略
+- CallerRunsPolicy: 让调用者运行任务
+- DiscardPolicy: 放弃本次任务执行
+- DiscardOldestPolicy: 放弃队列中最早的任务，本任务取而代之
+
