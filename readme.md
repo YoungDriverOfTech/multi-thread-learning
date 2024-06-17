@@ -1899,3 +1899,63 @@ JDK的拒绝策略有：
 - DiscardPolicy: 放弃本次任务执行
 - DiscardOldestPolicy: 放弃队列中最早的任务，本任务取而代之
 
+### 线程池的工厂构造方法
+```java
+    public static ExecutorService newFixedThreadPool(int nThreads) {
+        return new ThreadPoolExecutor(nThreads, nThreads,
+                                      0L, TimeUnit.MILLISECONDS,
+                                      new LinkedBlockingQueue<Runnable>());
+    }
+```
+特点：  
+- 核心线程数 = 最大线程数（没有救急线程被创建，因此也无需超时时间）
+- 阻塞队列是无界的，可以放任意数量的任务
+
+> 适用于任务量已知，相对耗时的任务
+
+```java
+package org.example.threadpool;
+
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
+@Slf4j
+public class FixedThreadPoolDemo {
+
+    public static void main(String[] args) {
+        ExecutorService executorService = Executors.newFixedThreadPool(2, new ThreadFactory() {
+
+            private final AtomicInteger atomicInteger = new AtomicInteger(0);
+
+            // 用来创建线程，并且给线程重命名
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "my-pool-" + atomicInteger.getAndIncrement());
+            }
+        });
+
+        executorService.execute(() -> {
+            log.info("test 1");
+        });
+
+        executorService.execute(() -> {
+            log.info("test 2");
+        });
+
+        // 因为只有核心线程，所以第三个任务执行完了以后，程序也不会退出
+        executorService.execute(() -> {
+            log.info("test 3");
+        });
+    }
+}
+
+/*
+  2024-06-17 21:58:30  [ my-pool-0:0 ] - [ INFO ]  test 1
+  2024-06-17 21:58:30  [ my-pool-1:1 ] - [ INFO ]  test 2
+  2024-06-17 21:58:30  [ my-pool-0:5 ] - [ INFO ]  test 3
+ */
+```
