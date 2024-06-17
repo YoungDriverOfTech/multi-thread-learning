@@ -1995,3 +1995,36 @@ public static ExecutorService newSingleThreadExecutor() {
 - Executors.newSingleThreadExecutor线程数时钟为1，不能修改
   - FinalizableDelegatedExecutorService应用的是装饰器模式，之对外暴漏了ExecutorService接口，因此不能调用ThreadPoolExecutor中特有的方法
 
+### 提交任务给线程池
+![image](./images/img_45.png)  
+
+#### submit 获取参数
+```java
+package org.example.threadpool;
+
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
+@Slf4j
+public class SubmitTaskDemo {
+
+    public static void main(String[] args) throws Exception{
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+
+        // submit 方法，接受task的返回值
+        Future<String> future = pool.submit(() -> {
+            log.info("running");
+            Thread.sleep(1000);
+            return "ok";
+        });
+        log.info("{}", future.get());
+
+    }
+}
+
+```
