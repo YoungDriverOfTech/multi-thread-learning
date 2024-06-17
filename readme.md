@@ -1900,12 +1900,13 @@ JDK的拒绝策略有：
 - DiscardOldestPolicy: 放弃队列中最早的任务，本任务取而代之
 
 ### 线程池的工厂构造方法
+#### newFixedThreadPool
 ```java
-    public static ExecutorService newFixedThreadPool(int nThreads) {
-        return new ThreadPoolExecutor(nThreads, nThreads,
-                                      0L, TimeUnit.MILLISECONDS,
-                                      new LinkedBlockingQueue<Runnable>());
-    }
+public static ExecutorService newFixedThreadPool(int nThreads) {
+    return new ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.MILLISECONDS,
+                                  new LinkedBlockingQueue<Runnable>());
+}
 ```
 特点：  
 - 核心线程数 = 最大线程数（没有救急线程被创建，因此也无需超时时间）
@@ -1959,3 +1960,19 @@ public class FixedThreadPoolDemo {
   2024-06-17 21:58:30  [ my-pool-0:5 ] - [ INFO ]  test 3
  */
 ```
+
+#### newCachedThreadPool
+```java
+public static ExecutorService newCachedThreadPool(ThreadFactory threadFactory) {
+    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                  60L, TimeUnit.SECONDS,
+                                  new SynchronousQueue<Runnable>(),
+                                  threadFactory);
+}
+```
+
+特点：  
+- 核心线程数是0，最大线程数是Integer.MAX_VALUE，救急线程的空闲生存时间是60s，意味着
+  - 全部都是救急线程（60s后可以回收）
+  - 救急线程可以无限创建
+- 使用了SynchronousQueue，其特点是，他没有容量，没有线程来取任务，那么放任务的时候会阻塞。只有线程先执行了取任务的操作，存任务的动作才能完成
