@@ -2075,3 +2075,7 @@ public class InvokeAllDemo {
 
 ```
 
+#### 批量执行 -> 最先执行完的任务返回，其他任务不执行
+```java
+
+```
