@@ -2118,3 +2118,36 @@ public class InvokeAnyDemo {
 }
 ```
 
+### 关闭线程
+#### shutdown 方法
+线程池状态变为SHUTDOWN 
+- 不会接受新任务
+- 但已经提交的任务会执行完
+- 此方法不会阻塞调用线程的执行
+```java
+public void shutdown() {
+    final ReentrantLock mainLock = this.mainLock;
+    mainLock.lock();
+    try {
+        checkShutdownAccess();
+        advanceRunState(SHUTDOWN);
+        interruptIdleWorkers();
+        onShutdown(); // hook for ScheduledThreadPoolExecutor
+    } finally {
+        mainLock.unlock();
+    }
+    tryTerminate();
+}
+```
+
+#### shutdownNow
+线程池状态变为 STOP
+- 不会接受新任务
+- 会将队列中的任务返回
+- 并用interrupt的方式终端正在执行的任务
+
+#### 其他方法
+- isShutdown() 不再running状态的线程池，此方法就返回true
+- isTerminated() 线程池状态是terminated
+- awaitTermination() 掉哟过shutdown后，由于调用线程并不会等待所有任务运行结束，因此如果它想在线程池terminated后做些事情，可以利用此方法等待
+

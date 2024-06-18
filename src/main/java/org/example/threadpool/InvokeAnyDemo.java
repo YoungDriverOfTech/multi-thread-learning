@@ -35,5 +35,8 @@ public class InvokeAnyDemo {
         ));
 
         System.out.println("future.get() = " + futures);
+
+        pool.shutdown();
+        pool.shutdownNow();
     }
 }
