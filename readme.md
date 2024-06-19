@@ -2261,7 +2261,7 @@ Fork/Join默认会创建与cpu核心数大小相同的线程池
 class ForkJoinDemo {
   public static void main(String[] args) {
     ForkJoinPool pool = new ForkJoinPool(4);
-    log.info(pool.invoke(new MyTask(5)))
+    log.info(pool.invoke(new MyTask(5)));
   }
 }
 
@@ -2287,3 +2287,8 @@ class MyTask extends RecursiveTask<Integer> {
   }
 }
 ```
+
+
+
+## JUC并发工具包
+
