@@ -2204,3 +2204,86 @@ CPU不总是处于繁忙状态，例如，当执行业务计算时，会使用CP
 
 例如4核CPU计算时间是10%，其他等待时间是90%，期望cpu被100%利用：  
 40 = 4 * 100% * （100% / 10%）
+
+### 怎么正确处理线程池中的异常
+#### 方法1: 线程池内的线程自己try catch处理异常
+```java
+ScheuledExecutorService pool = Executors.newScheduledThreadPool(1);
+pool.schedule(() -> {
+  try {
+    // logic
+    int i= 1 / 0;
+  } catch (Exeception e) {
+    log.error("error : {}", e)
+  }
+}, 1, TimeUnit.SECONDS)
+```
+
+#### 方法2: 使用Callable任务
+出现异常的时候，Callable会把异常信息返回给主线程
+```java
+ExecutorService pool = Executors.newFixedThreadPool(1);
+Future<Boolean> f = pool.submit(() -> {
+  int i = 1 / 0;
+  return true;
+})
+
+log.info("result: {}", f.get()); // 正常返回是true，如果异常发生了，返回的就是异常信息
+```
+
+### Tomcat线程池
+构造图：
+![image](./images/img_46.png)
+
+- LimitLatch用来限流，可以控制最大连接个数，类似JUC中的Semaphore
+- Acceptor只负责【接受新的socket连接】
+- Poller只负责监听socket channel是否有【刻度的I/O时间】
+- 一旦可读，封装一个任务对象（socketProcessor），提交给Executor线程池处理
+- Executor线程池中的工作线程最终负责【处理请求】
+
+![image](./images/img_47.png)
+Tomcat线程池扩展了ThreadPoolExecutor，行为少有不同
+- 如果总线程数量达到了maximumPoolSize
+  - 这时不会立刻抛RejectedExecutionException异常
+  - 而是在此尝试将任务放入队列，如果还失败，才抛出RejectedExecutionException异常
+
+![image](./images/img_48.png)
+
+## Fork/Join线程池
+### 1）概念
+Fork/Join是JDK7加入的新的线程池时间，它体现的是一种分治思想，适用于能够进行任务拆分的cpu密集型运算  
+所谓的任务拆分，是将一个大任务拆分为算法上相同的小任务，直至不能拆分可以直接求解。跟递归相关的一些计算，如归并排序，斐波那契数列，都可以用分治思想进行求解  
+Fork/Join在分治的基础上加入了多线程， 可以把每个任务的分解和合并交给不同的线程来完成，进一步提升了运算效率  
+Fork/Join默认会创建与cpu核心数大小相同的线程池
+
+### 2）使用
+```java
+class ForkJoinDemo {
+  public static void main(String[] args) {
+    ForkJoinPool pool = new ForkJoinPool(4);
+    log.info(pool.invoke(new MyTask(5)))
+  }
+}
+
+class MyTask extends RecursiveTask<Integer> {
+  private int n;
+
+  public MyTask(int n ) {
+    this.n = n;
+  }
+
+  @Override
+  protected Integer compute() {
+    // 终止条件
+    if (n == 1) {
+      return 1;
+    }
+
+    Mytask t1 = new MyTask(n - 1);
+    t1.fork(); // 让一个线程去执行此任务
+
+    int result = n + t1.join(); // 获取任务结果
+    return result;
+  }
+}
+```
