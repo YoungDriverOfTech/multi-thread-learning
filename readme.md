@@ -2519,3 +2519,15 @@ Thread-0释放锁，进入tryRelease流程，如果成功
 ![image](./images/img_57.png)
 
 如果枷锁成功（没有竞争），会设置
+
+- exclusiveOwnerThread为Thread-1，state=1
+- head指向刚刚Thread-1所在的Node，该Node清空Thread
+- 原本的head因为从连标断开，而可以被垃圾回收  
+
+如果这时候有其他线程来竞争（非公平的体现），例如这时有Thread-4来了  
+![image](./images/img_58.png)
+
+如果不巧又被Thread-4占了先
+- Thread-4被设置为exclusiveOwnerThread， state == 1
+- Thread-1再次进入acquireQueued流程，获取锁失败，重新进入park阻塞
+
