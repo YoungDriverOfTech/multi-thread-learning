@@ -2468,3 +2468,54 @@ public ReentrantLock() {
 
 NonfairSync继承自AQS， 没有竞争时候  
 ![image](./images/img_50.png)
+
+第一个竞争出现时候
+![image](./images/img_51.png)
+
+```diff
+    public final void acquire(int arg) {
+        if (!tryAcquire(arg) &&
+            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+            selfInterrupt();
+    }
+```
+Thread-1执行了  
+- CAS尝试将state由0改成1，结果失败
+- 进入tryAcquire逻辑，这是state已经是1，结果仍然失败
+- 接下来进入addWaiter逻辑，构造Node队列
+  - 途中黄色三角表示Node的waitStatue状态，其中0为默认正常状态
+  - Node的创建是懒惰的
+  - 其中第一个Node称为Dummy（哑元）或者哨兵，用来展位，并不关联线程  
+
+![image](./images/img_52.png)
+
+当前线程进入acquireQueued逻辑  
+- acquireQueued会在一个死循环中不断尝试获得锁，失败后进入park阻塞
+- 如果自己是紧邻这head（排第二位），那么再次tryAcquire尝试获取锁，当然这是state仍为1，失败
+- 进入shouldParkAfterFailedAcquire逻辑，将前去node，即head的waitStatus改为-1，这次返回false
+
+![image](./images/img_53.png)
+
+- shouldParkAfterFailedAcquire执行完毕回到acquireQueued，再次tryAcquire尝试获取锁，当然这时state仍为1，失败
+- 当再次进入shouldParkAfterFailedAcquire时，这时因为其前去node的waitStatus已经是-1，这次返回true
+- 进入parkAndCheckInterrupt，Thread-1（灰色表示）
+
+![image](./images/img_54.png)
+
+再有多个线程经历上述过程竞争失败，变成这个样子
+
+![image](./images/img_55.png)
+
+Thread-0释放锁，进入tryRelease流程，如果成功  
+- 设置exclusiveOwnerThread为null
+- state=0
+
+![image](./images/img_56.png)
+
+当前队列部位null，并且head的waitStatus == -1，进入unparkSuccessor流程  
+找到队列中离head最近的一个Node（没有取消的），unpark恢复其运行，本例中即为Thread-1  
+回到Thread-1的acquireQueued流程  
+
+![image](./images/img_57.png)
+
+如果枷锁成功（没有竞争），会设置
