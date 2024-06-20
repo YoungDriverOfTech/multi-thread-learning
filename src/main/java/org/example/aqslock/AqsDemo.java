@@ -1,12 +1,39 @@
 package org.example.aqslock;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
+@Slf4j
 public class AqsDemo {
+    public static void main(String[] args) {
+        MyLock lock = new MyLock();
 
+        new Thread(() -> {
+          lock.lock();
+          lock.lock(); // 不可重入锁
+          try {
+              log.info("locking");
+          } finally {
+              log.info("unlocking");
+              lock.unlock();
+          }
+        }, "t1").start();
+
+        new Thread(() -> {
+            lock.lock();
+
+            try {
+                log.info("locking");
+            } finally {
+                log.info("unlocking");
+                lock.unlock();
+            }
+        }, "t2").start();
+    }
 }
 
 class MyLock implements Lock {
@@ -18,6 +45,7 @@ class MyLock implements Lock {
             if (compareAndSetState(0, 1)) {
                 // 加上了锁，并且设置该锁的owner线程为当前线程
                 setExclusiveOwnerThread(Thread.currentThread());
+                return true;
             }
             return false;
         }
