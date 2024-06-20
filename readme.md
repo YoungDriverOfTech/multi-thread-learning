@@ -2454,3 +2454,17 @@ class MyLock implements Lock {
     }
 }
 ```
+
+### ReentrantLock原理
+![image](./images/img_49.png)
+
+#### 枷锁解锁流程  
+先从构造起开始看，默认为非公平锁实现
+```diff
+public ReentrantLock() {
+  sync = new NonfairSync();
+}
+```
+
+NonfairSync继承自AQS， 没有竞争时候  
+![image](./images/img_50.png)
