@@ -2640,9 +2640,13 @@ lock.unlockWrite(stamp);
 ```diff
 long stamp = lock.tryOptimisticRead();
 
-// 校验戳
+// 校验戳失败的话，需要锁升级
 if (!lock.validate(stamp)) {
   // 锁升级
+  lock.readLock();
 }
 ```
+
+- StampedLock不支持条件变量
+- StampedLock不支持可重入
 
