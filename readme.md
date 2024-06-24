@@ -2531,3 +2531,4 @@ Thread-0释放锁，进入tryRelease流程，如果成功
 - Thread-4被设置为exclusiveOwnerThread， state == 1
 - Thread-1再次进入acquireQueued流程，获取锁失败，重新进入park阻塞
 
+#### ReentrantLock可重入原理  
