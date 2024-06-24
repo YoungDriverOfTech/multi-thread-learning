@@ -2622,3 +2622,27 @@ class DataContainer {
 ```
 - 重入时支持锁降级：持有写锁的情况下，再去获取读锁
 
+### StampedLock
+该类自JDK8加入，是为了进一步优化读性能，他的特点是在使用读锁，写锁时都必须配合【戳】使用   
+加/解读锁
+```diff
+long stamp = lock.readLock();
+lock.unlockRead(stamp);
+```
+
+加/解写锁
+```diff
+long stamp = lock.writeLock();
+lock.unlockWrite(stamp);
+```
+
+乐观读，StampedLock支持tryOptimisticRead()方法，读取完毕后需要做一次戳校验，如果校验通过，表示这期间确实没有写操作，数据可以安全使用，如果校验没通过，需要重新获取读锁，保证数据安全
+```diff
+long stamp = lock.tryOptimisticRead();
+
+// 校验戳
+if (!lock.validate(stamp)) {
+  // 锁升级
+}
+```
+
