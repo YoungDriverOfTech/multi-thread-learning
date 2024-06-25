@@ -2688,3 +2688,55 @@ public class SemaphoreDemo {
 ```
 
 ### CountdownLatch
+用来进行线程同步写作，等待所有线程完成倒计时。  
+其中构造参数用来初始化等待述职，awati()用来等待技术归零，countDown()用来让计数减1  
+```java
+package org.example.countdownlatchdemo;
+
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.CountDownLatch;
+
+@Slf4j
+public class CountDownLatchDemo {
+    public static void main(String[] args) throws Exception {
+        CountDownLatch countDownLatch = new CountDownLatch(3);
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            log.info("start");
+            countDownLatch.countDown();
+            log.info("end");
+        }).start();
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            log.info("start");
+            countDownLatch.countDown();
+            log.info("end");
+        }).start();
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            log.info("start");
+            countDownLatch.countDown();
+            log.info("end");
+        }).start();
+
+        log.info("waiting");
+        countDownLatch.await();
+    }
+}
+
+```
