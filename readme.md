@@ -2791,3 +2791,27 @@ public class CyclicBarrierDemo {
 
 ## 线程安全集合类
 
+### 分类
+![image](./images/img_61.png)
+
+线程安全集合类可以氛围三大类：
+- 遗留的线程安全集合比如Hashtable，Vector
+- 使用Collections修饰的线程安全集合，比如：
+  - Collections.synchronizedCollection
+  - Collections.synchronizedList
+  - Collections.synchronizedMap
+  - ...
+- JUC包下的类
+
+### JUC包概述
+重点介绍juc下的线程安全集合类，可以发现他们有规律，里面包含三类关键词：Blocking，CopyOnWrite，Concurrent
+- Blocking大部分实现基于锁，并提供用来阻塞的方法
+- CopyOnWrite之类容器修改开销相对较重
+- Concurrent类型的容器
+  - 内部很多操作使用cas优化，一般可以提供较高吞吐量
+  - 若一致性
+    - 遍历时时若一致性，例如：当利用迭代器遍历时，如果容器发生修改，迭代器仍然可以继续进行遍历，这时内容是旧的
+    - 求大小弱一致性，size操作未必是100%正确
+    - 读取弱一致性
+  - 遍历是如果发生了修改，对于非安全容器来讲，使用fail-fast机制也就是让遍历立刻失败，抛出ConcurrentModificationException，不再继续遍历
+
