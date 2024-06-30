@@ -2815,3 +2815,6 @@ public class CyclicBarrierDemo {
     - 读取弱一致性
   - 遍历是如果发生了修改，对于非安全容器来讲，使用fail-fast机制也就是让遍历立刻失败，抛出ConcurrentModificationException，不再继续遍历
 
+### ConcurrentHashMap 原理
+#### JDK7 HashMap并发死链
+
